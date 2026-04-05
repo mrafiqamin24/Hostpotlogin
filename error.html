@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Error Login</title>
 <link rel="icon" href="img/Home.Net.png" type="image/png" />
-<link rel="stylesheet"
-href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
 <style>
 :root{
@@ -14,17 +13,13 @@ href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.c
   --bg2:#2a0f0f;
   --card:rgba(30,10,10,.78);
   --text:#eef4ff;
-  --muted:#fca5a5;
   --blue:#3b82f6;
   --blue2:#2563eb;
   --red:#ef4444;
   --red2:#dc2626;
-  --red3:#7f1d1d;
   --line:rgba(255,255,255,.08);
-  --glass:rgba(255,255,255,.04);
 }
 
-/* RESET */
 *{
   margin:0;
   padding:0;
@@ -36,7 +31,6 @@ html,body{
   overflow-x:hidden;
 }
 
-/* BODY */
 body{
   font-family:Inter,system-ui,sans-serif;
   min-height:100vh;
@@ -53,12 +47,11 @@ body{
   position:relative;
 }
 
-/* BACKGROUND AMBIENCE */
+/* ambient */
 body::before,
 body::after{
   content:"";
   position:fixed;
-  inset:auto;
   border-radius:50%;
   filter:blur(60px);
   pointer-events:none;
@@ -88,7 +81,50 @@ body::after{
   50%{transform:translateY(-12px) translateX(10px) scale(1.08)}
 }
 
-/* STATUS POJOK */
+/* hacker overlays */
+.scanlines{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:1;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,.035) 0px,
+      rgba(255,255,255,.035) 1px,
+      transparent 2px,
+      transparent 4px
+    );
+  mix-blend-mode:soft-light;
+  opacity:.28;
+  animation:scanMove 8s linear infinite;
+}
+
+.noise{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:1;
+  opacity:.06;
+  background-image:radial-gradient(rgba(255,255,255,.6) .6px, transparent .8px);
+  background-size:4px 4px;
+  animation:noiseShift .25s steps(2) infinite;
+}
+
+@keyframes scanMove{
+  0%{transform:translateY(0)}
+  100%{transform:translateY(8px)}
+}
+
+@keyframes noiseShift{
+  0%{transform:translate(0,0)}
+  25%{transform:translate(-1px,1px)}
+  50%{transform:translate(1px,-1px)}
+  75%{transform:translate(1px,1px)}
+  100%{transform:translate(0,0)}
+}
+
+/* status pojok */
 .top-status{
   position:fixed;
   top:14px;
@@ -99,13 +135,20 @@ body::after{
   display:flex;
   align-items:center;
   gap:8px;
-  z-index:5;
+  z-index:20;
   padding:8px 12px;
   border-radius:999px;
   background:rgba(127,29,29,.28);
   border:1px solid rgba(239,68,68,.22);
   backdrop-filter:blur(10px);
   box-shadow:0 10px 30px rgba(0,0,0,.18);
+  transition:opacity .5s ease, transform .5s ease, visibility .5s ease;
+}
+
+.top-status.hide{
+  opacity:0;
+  transform:translateY(-12px);
+  visibility:hidden;
 }
 
 .dot{
@@ -123,7 +166,7 @@ body::after{
   100%{opacity:1; transform:scale(1)}
 }
 
-/* CARD */
+/* card */
 .card{
   width:100%;
   max-width:440px;
@@ -139,18 +182,17 @@ body::after{
     inset 0 1px 0 rgba(255,255,255,.06);
   text-align:center;
   border:1px solid var(--line);
-  animation:shake .4s ease;
+  animation:cardShake .45s ease;
   position:relative;
   overflow:hidden;
-  z-index:1;
+  z-index:2;
 }
 
 .card::before{
   content:"";
   position:absolute;
   inset:0;
-  background:
-    linear-gradient(135deg, rgba(255,255,255,.08), transparent 30%, transparent 70%, rgba(255,255,255,.03));
+  background:linear-gradient(135deg, rgba(255,255,255,.08), transparent 30%, transparent 70%, rgba(255,255,255,.03));
   pointer-events:none;
 }
 
@@ -167,17 +209,16 @@ body::after{
   pointer-events:none;
 }
 
-/* SHAKE */
-@keyframes shake {
-  0% { transform: translateX(0); }
-  20% { transform: translateX(-6px); }
-  40% { transform: translateX(6px); }
-  60% { transform: translateX(-4px); }
-  80% { transform: translateX(4px); }
-  100% { transform: translateX(0); }
+@keyframes cardShake{
+  0%{transform:translateX(0)}
+  20%{transform:translateX(-6px)}
+  40%{transform:translateX(6px)}
+  60%{transform:translateX(-4px)}
+  80%{transform:translateX(4px)}
+  100%{transform:translateX(0)}
 }
 
-/* LOGO */
+/* logo */
 .logo-wrap{
   position:relative;
   width:max-content;
@@ -203,8 +244,7 @@ body::after{
   display:flex;
   align-items:center;
   justify-content:center;
-  background:
-    linear-gradient(145deg, #ff5b5b, #dc2626 55%, #991b1b);
+  background:linear-gradient(145deg, #ff5b5b, #dc2626 55%, #991b1b);
   font-size:34px;
   font-weight:800;
   color:white;
@@ -279,26 +319,75 @@ body::after{
   80%{transform:scale(1) rotate(0deg)}
 }
 
-/* TITLE */
+/* title */
 h1{
   font-size:1.52rem;
   margin-bottom:16px;
   letter-spacing:.3px;
+  position:relative;
+  display:inline-block;
 }
 
-/* ERROR BOX */
+h1::before,
+h1::after{
+  content:"Home.Net";
+  position:absolute;
+  left:0;
+  top:0;
+  pointer-events:none;
+  opacity:.18;
+}
+
+h1::before{
+  color:#ff4d4d;
+  transform:translate(-1px,0);
+  animation:titleGlitch 2.2s infinite linear alternate-reverse;
+}
+
+h1::after{
+  color:#60a5fa;
+  transform:translate(1px,0);
+  animation:titleGlitch 1.8s infinite linear alternate-reverse;
+}
+
+@keyframes titleGlitch{
+  0%{clip-path:inset(0 0 85% 0)}
+  20%{clip-path:inset(10% 0 55% 0)}
+  40%{clip-path:inset(30% 0 30% 0)}
+  60%{clip-path:inset(65% 0 10% 0)}
+  80%{clip-path:inset(40% 0 35% 0)}
+  100%{clip-path:inset(85% 0 0 0)}
+}
+
+/* error box */
 .error-box{
   margin-top:10px;
   border-radius:20px;
   padding:18px 16px;
-  background:
-    linear-gradient(180deg, rgba(239,68,68,.18), rgba(127,29,29,.18));
+  background:linear-gradient(180deg, rgba(239,68,68,.18), rgba(127,29,29,.18));
   border:1px solid rgba(239,68,68,.30);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.04),
     0 10px 22px rgba(0,0,0,.12);
   display:grid;
-  gap:8px;
+  gap:10px;
+  position:relative;
+  overflow:hidden;
+  animation:errorPulse 2.2s infinite ease-in-out;
+}
+
+.error-box::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(
+    120deg,
+    transparent 10%,
+    rgba(255,255,255,.10) 50%,
+    transparent 90%
+  );
+  transform:translateX(-120%);
+  animation:errorSweep 3s linear infinite;
 }
 
 .error-box i{
@@ -307,7 +396,85 @@ h1{
   filter:drop-shadow(0 0 6px rgba(239,68,68,.35));
 }
 
-/* BUTTONS */
+.error-text{
+  position:relative;
+  font-weight:600;
+  line-height:1.5;
+  word-break:break-word;
+  animation:errorTextPulse 2s ease-in-out infinite;
+}
+
+.error-text.glitching{
+  animation:
+    errorTextPulse 2s ease-in-out infinite,
+    errorTextGlitch 120ms steps(2) 0s 10;
+}
+
+.error-text.glitching::before,
+.error-text.glitching::after{
+  content:attr(data-text);
+  position:absolute;
+  left:0;
+  top:0;
+  width:100%;
+  pointer-events:none;
+  overflow:hidden;
+  white-space:normal;
+}
+
+.error-text.glitching::before{
+  color:#ff5b5b;
+  text-shadow:-2px 0 rgba(255,0,0,.45);
+  transform:translate(-2px,0);
+  animation:errorSlice1 150ms steps(2) 0s 8;
+}
+
+.error-text.glitching::after{
+  color:#60a5fa;
+  text-shadow:2px 0 rgba(96,165,250,.45);
+  transform:translate(2px,0);
+  animation:errorSlice2 180ms steps(2) 0s 8;
+}
+
+@keyframes errorPulse{
+  0%,100%{box-shadow:inset 0 1px 0 rgba(255,255,255,.04), 0 10px 22px rgba(0,0,0,.12)}
+  50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 10px 22px rgba(0,0,0,.12), 0 0 20px rgba(239,68,68,.18)}
+}
+
+@keyframes errorSweep{
+  100%{transform:translateX(120%)}
+}
+
+@keyframes errorTextPulse{
+  0%,100%{text-shadow:0 0 0 rgba(239,68,68,0)}
+  50%{text-shadow:0 0 12px rgba(239,68,68,.18)}
+}
+
+@keyframes errorTextGlitch{
+  0%{transform:translate(0,0)}
+  25%{transform:translate(-1px,1px)}
+  50%{transform:translate(1px,-1px)}
+  75%{transform:translate(-1px,0)}
+  100%{transform:translate(0,0)}
+}
+
+@keyframes errorSlice1{
+  0%{clip-path:inset(0 0 80% 0)}
+  25%{clip-path:inset(20% 0 35% 0)}
+  50%{clip-path:inset(65% 0 8% 0)}
+  75%{clip-path:inset(35% 0 30% 0)}
+  100%{clip-path:inset(80% 0 0 0)}
+}
+
+@keyframes errorSlice2{
+  0%{clip-path:inset(75% 0 0 0)}
+  25%{clip-path:inset(40% 0 32% 0)}
+  50%{clip-path:inset(10% 0 58% 0)}
+  75%{clip-path:inset(55% 0 15% 0)}
+  100%{clip-path:inset(0 0 78% 0)}
+}
+
+/* buttons */
 .btns{
   margin-top:20px;
   display:grid;
@@ -326,7 +493,7 @@ h1{
   cursor:pointer;
   text-decoration:none;
   color:white;
-  transition:transform .2s ease, box-shadow .2s ease, filter .2s ease;
+  transition:transform .2s ease, box-shadow .2s ease;
   position:relative;
   overflow:hidden;
   isolation:isolate;
@@ -344,7 +511,6 @@ h1{
   transform:translateY(0);
 }
 
-/* BUTTON SHINE */
 .btn::before{
   content:"";
   position:absolute;
@@ -379,7 +545,7 @@ h1{
 }
 
 .btn-login{
-  background:linear-gradient(135deg, #3b82f6, #2563eb);
+  background:linear-gradient(135deg,#3b82f6,#2563eb);
   box-shadow:
     0 0 12px rgba(59,130,246,.50),
     0 0 25px rgba(59,130,246,.20),
@@ -394,7 +560,7 @@ h1{
 }
 
 .btn-admin{
-  background:linear-gradient(135deg, #ef4444, #dc2626);
+  background:linear-gradient(135deg,#ef4444,#dc2626);
   box-shadow:
     0 0 12px rgba(239,68,68,.52),
     0 0 25px rgba(239,68,68,.22),
@@ -414,7 +580,7 @@ h1{
   }
 }
 
-/* MARQUEE */
+/* marquee */
 .marquee{
   margin-top:16px;
   overflow:hidden;
@@ -436,7 +602,7 @@ h1{
   100%{transform:translateX(-100%)}
 }
 
-/* FOOTER */
+/* footer */
 .footer{
   margin-top:14px;
   font-size:.8rem;
@@ -444,7 +610,24 @@ h1{
   line-height:1.5;
 }
 
-/* RESPONSIVE */
+/* runtime effects */
+@keyframes shakeHard{
+  0%{transform:translate(0,0)}
+  20%{transform:translate(-6px,4px)}
+  40%{transform:translate(6px,-4px)}
+  60%{transform:translate(-4px,2px)}
+  80%{transform:translate(4px,-2px)}
+  100%{transform:translate(0,0)}
+}
+
+@keyframes flashGlitch{
+  0%{opacity:0}
+  20%{opacity:.6}
+  40%{opacity:.2}
+  60%{opacity:.7}
+  100%{opacity:0}
+}
+
 @media (max-width:480px){
   body{
     padding:16px;
@@ -487,24 +670,26 @@ h1{
 </head>
 <body>
 
-<div class="top-status">
+<div class="scanlines"></div>
+<div class="noise"></div>
+
+<div class="top-status" id="topStatus">
   <div class="dot"></div>
   Login gagal
 </div>
 
 <div class="card">
-
   <div class="logo-wrap">
-    <div style="color: #eef4ff;" class="logo">
+    <div class="logo">
       <span class="logo-icon">❌</span>
     </div>
   </div>
 
-  <h1>Login Gagal😔</h1>
+  <h1>Home.Net</h1>
 
   <div class="error-box">
     <i class="bi bi-x-circle"></i>
-    $(error)
+    <div class="error-text" id="errorText" data-text="$(error)">$(error)</div>
   </div>
 
   <div class="btns">
@@ -528,22 +713,108 @@ h1{
   <div class="footer">
     © 2026 Home.Net • Powered by MikroTik | Muhammad Rafiq Amin
   </div>
-
 </div>
 
-<script>
-  setTimeout(() => {
-    const status = document.querySelector('.top-status');
-    if (status) {
-      status.style.transition = 'all .5s ease';
-      status.style.opacity = '0';
-      status.style.transform = 'translateY(-10px)';
+<audio id="errorSound" preload="auto">
+  <source src="https://cdn.pixabay.com/download/audio/2023/03/25/audio_8c7a4b4c9f.mp3?filename=error-2-126514.mp3" type="audio/mpeg">
+</audio>
 
-      setTimeout(() => {
-        status.remove();
-      }, 500);
+<script>
+(function () {
+  const audio = document.getElementById('errorSound');
+  const topStatus = document.getElementById('topStatus');
+  const errorText = document.getElementById('errorText');
+  let effectPlayed = false;
+
+  function triggerVibrate() {
+    if ('vibrate' in navigator) {
+      navigator.vibrate([200, 100, 200, 100, 300]);
     }
-  }, 5000);
+  }
+
+  function screenShake() {
+    document.body.style.animation = 'shakeHard .4s';
+    setTimeout(() => {
+      document.body.style.animation = '';
+    }, 400);
+  }
+
+  function glitchFlash() {
+    const flash = document.createElement('div');
+    flash.style.position = 'fixed';
+    flash.style.inset = '0';
+    flash.style.background = 'rgba(255,0,0,0.15)';
+    flash.style.zIndex = '9999';
+    flash.style.pointerEvents = 'none';
+    flash.style.animation = 'flashGlitch .4s';
+    document.body.appendChild(flash);
+
+    setTimeout(() => {
+      if (flash.parentNode) flash.parentNode.removeChild(flash);
+    }, 400);
+  }
+
+  function glitchErrorText() {
+    if (!errorText) return;
+
+    errorText.classList.add('glitching');
+
+    setTimeout(() => {
+      errorText.classList.remove('glitching');
+    }, 1600);
+  }
+
+  function runEffectsOnly() {
+    triggerVibrate();
+    screenShake();
+    glitchFlash();
+    glitchErrorText();
+  }
+
+  function playErrorEffect() {
+    if (effectPlayed) return;
+    effectPlayed = true;
+
+    runEffectsOnly();
+
+    if (!audio) return;
+
+    audio.volume = 0.85;
+    audio.currentTime = 0;
+
+    const playPromise = audio.play();
+
+    if (playPromise && typeof playPromise.then === 'function') {
+      playPromise.catch(() => {
+        const unlockAudio = () => {
+          audio.play().catch(() => {});
+          document.removeEventListener('click', unlockAudio);
+          document.removeEventListener('touchstart', unlockAudio);
+        };
+
+        document.addEventListener('click', unlockAudio, { once: true });
+        document.addEventListener('touchstart', unlockAudio, { once: true });
+      });
+    }
+  }
+
+  function hideTopStatus() {
+    if (!topStatus) return;
+
+    topStatus.classList.add('hide');
+
+    setTimeout(() => {
+      if (topStatus && topStatus.parentNode) {
+        topStatus.parentNode.removeChild(topStatus);
+      }
+    }, 600);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    playErrorEffect();
+    setTimeout(hideTopStatus, 5000);
+  });
+})();
 </script>
 
 </body>
