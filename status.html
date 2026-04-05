@@ -1386,6 +1386,20 @@ if (minutesLeft !== null) {
 const CONNECTION_STATE_KEY = 'homeNetConnectionCollapsed';
 const PACKAGE_STATE_KEY = 'homeNetPackageCollapsed';
 
+function safeStorageGet(storage, key) {
+  try {
+    return storage.getItem(key);
+  } catch (e) {
+    return null;
+  }
+}
+
+function safeStorageSet(storage, key, value) {
+  try {
+    storage.setItem(key, value);
+  } catch (e) {}
+}
+
 function getDefaultCollapsedState() {
   return window.matchMedia("(max-width: 640px)").matches;
 }
@@ -1393,11 +1407,11 @@ function getDefaultCollapsedState() {
 function setSectionState(box, toggle, storageKey, collapsed) {
   box.classList.toggle('collapsed', collapsed);
   toggle.setAttribute('aria-expanded', String(!collapsed));
-  localStorage.setItem(storageKey, collapsed ? 'true' : 'false');
+  safeStorageSet(localStorage, storageKey, collapsed ? 'true' : 'false');
 }
 
 function initSectionState(box, toggle, storageKey) {
-  const savedState = localStorage.getItem(storageKey);
+  const savedState = safeStorageGet(localStorage, storageKey);
 
   if (savedState === 'true') {
     setSectionState(box, toggle, storageKey, true);
@@ -1430,12 +1444,12 @@ window.addEventListener('pageshow', function (event) {
 
 document.addEventListener('visibilitychange', function () {
   if (document.visibilityState === 'hidden') {
-    sessionStorage.setItem('lastHiddenAt', String(Date.now()));
+    safeStorageSet(sessionStorage, 'lastHiddenAt', String(Date.now()));
     return;
   }
 
   if (document.visibilityState === 'visible') {
-    const lastHidden = sessionStorage.getItem('lastHiddenAt');
+    const lastHidden = safeStorageGet(sessionStorage, 'lastHiddenAt');
     if (!lastHidden) return;
 
     const diff = Date.now() - Number(lastHidden);
