@@ -1467,6 +1467,7 @@ const closeQrBtn = document.getElementById('closeQrBtn');
 const qrBackdrop = document.getElementById('qrBackdrop');
 const startQrBtn = document.getElementById('startQrBtn');
 const uploadQrBtn = document.getElementById('uploadQrBtn');
+const qrActions = document.querySelector('.qr-actions');
 const qrImageInput = document.getElementById('qrImageInput');
 const qrVideo = document.getElementById('qrVideo');
 const qrStatus = document.getElementById('qrStatus');
@@ -1480,9 +1481,61 @@ let qrDetector = null;
 let qrScanning = false;
 let isAutoLoggingIn = false;
 let qrCanvas = document.getElementById('qrCanvas');
-let qrCanvasCtx = qrCanvas.getContext('2d', { willReadFrequently: true }) || qrCanvas.getContext('2d');
+let qrCanvasCtx = qrCanvas.getContext('2d', { willReadFrequently: true });
 let lastQrScanAt = 0;
 const qrScanInterval = 180;
+const qrSupport = {
+  camera: false,
+  upload: false
+};
+
+function hideCameraFeature(){
+  if (!startQrBtn) return;
+  startQrBtn.style.display = 'none';
+}
+
+function showCameraFeature(){
+  if (!startQrBtn) return;
+  startQrBtn.style.display = '';
+}
+
+function hasModernCameraApi(){
+  return !!(navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function');
+}
+
+function hasLegacyCameraApi(){
+  return !!(navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+}
+
+function canUseCameraScanner(){
+  const secureOk = !!window.isSecureContext || location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  return secureOk && (hasModernCameraApi() || hasLegacyCameraApi());
+}
+
+function canUseQrUpload(){
+  return 'BarcodeDetector' in window;
+}
+
+function applyQrFeatureAvailability(){
+  qrSupport.camera = canUseCameraScanner();
+  qrSupport.upload = canUseQrUpload();
+
+  if (qrSupport.camera) {
+    showCameraFeature();
+  } else {
+    hideCameraFeature();
+  }
+
+  if (!qrSupport.camera && qrSupport.upload) {
+    setQrStatus('Browser ini gak support akses kamera buat scan langsung. Tapi kamu masih bisa pakai Upload QR.');
+  } else if (!qrSupport.camera && !qrSupport.upload) {
+    setQrStatus('Browser ini belum support scan QR. Tetap bisa login manual pakai kode voucher.');
+  }
+
+  if (qrActions && !qrSupport.camera && !qrSupport.upload) {
+    qrActions.style.display = 'none';
+  }
+}
 
 function startLogin(){
   const voucher = voucherInput.value.trim();
@@ -1541,6 +1594,17 @@ function setQrStatus(message){
 
 function openQrModal(){
   qrModal.classList.add('show');
+
+  if (!qrSupport.camera && qrSupport.upload) {
+    setQrStatus('Browser ini gak support scan kamera langsung. Pakai Upload QR buat baca voucher dari gambar.');
+    return;
+  }
+
+  if (!qrSupport.camera && !qrSupport.upload) {
+    setQrStatus('Scan QR belum didukung di browser ini. Tetap bisa login manual pakai kode voucher.');
+    return;
+  }
+
   setQrStatus('Arahkan kamera ke QR code voucher. Begitu kebaca, voucher langsung keisi dan auto login.');
 }
 
@@ -1652,31 +1716,6 @@ function readQrFromCanvas(){
   return null;
 }
 
-function createImageBitmapFallback(file){
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-
-    img.onload = function(){
-      resolve({
-        width: img.naturalWidth || img.width,
-        height: img.naturalHeight || img.height,
-        source: img,
-        close(){
-          URL.revokeObjectURL(url);
-        }
-      });
-    };
-
-    img.onerror = function(){
-      URL.revokeObjectURL(url);
-      reject(new Error('Gagal memuat gambar'));
-    };
-
-    img.src = url;
-  });
-}
-
 async function scanQrFrame(timestamp = 0){
   if (!qrScanning || isAutoLoggingIn) return;
 
@@ -1718,16 +1757,13 @@ qrImageInput.addEventListener('change', async (event) => {
   if (!file) return;
 
   try {
-    const imageBitmap = typeof createImageBitmap === 'function'
-      ? await createImageBitmap(file)
-      : await createImageBitmapFallback(file);
+    const imageBitmap = await createImageBitmap(file);
     const width = imageBitmap.width;
     const height = imageBitmap.height;
-    const imageSource = imageBitmap.source || imageBitmap;
 
     qrCanvas.width = width;
     qrCanvas.height = height;
-    qrCanvasCtx.drawImage(imageSource, 0, 0, width, height);
+    qrCanvasCtx.drawImage(imageBitmap, 0, 0, width, height);
 
     let rawValue = '';
 
@@ -1759,6 +1795,8 @@ qrImageInput.addEventListener('change', async (event) => {
 
   event.target.value = '';
 });
+
+applyQrFeatureAvailability();
 
 openQrBtn.addEventListener('click', openQrModal);
 closeQrBtn.addEventListener('click', closeQrModal);
@@ -1807,49 +1845,6 @@ if (!reduceMotion && window.innerWidth > 768) {
     loginCard.style.setProperty('--my', '50%');
   });
 }
-// === AUTO DETECT CAMERA SUPPORT ===
-(function(){
-  const scanBtn = document.getElementById('scanBtn');
-  if(!scanBtn) return;
-
-  function hideScan(){
-    scanBtn.style.display = "none";
-  }
-
-  function isSecure(){
-    return location.protocol === "https:" || location.hostname === "localhost";
-  }
-
-  function hasCameraAPI(){
-    return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-  }
-
-  function isOldBrowser(){
-    return !window.Promise || !navigator.mediaDevices;
-  }
-
-  // cek basic support
-  if(!hasCameraAPI() || isOldBrowser()){
-    hideScan();
-    return;
-  }
-
-  // cek secure context (penting buat banyak browser)
-  if(!isSecure()){
-    // beberapa android masih bisa, tapi kita safe aja
-    // coba test cepat permission tanpa buka kamera lama
-    navigator.mediaDevices.getUserMedia({video:true})
-      .then(stream=>{
-        stream.getTracks().forEach(t=>t.stop());
-      })
-      .catch(()=>{
-        hideScan();
-      });
-  }
-
-})();
-scanBtn.style.opacity = "0";
-scanBtn.style.pointerEvents = "none";
 </script>
 
 </body>
